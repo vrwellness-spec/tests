@@ -1,0 +1,41 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Assessments</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <a href="{{ url_for('admin') }}" class="btn btn-secondary" style="margin-bottom: 2rem;">&larr; Back to Admin Dashboard</a>
+        <h1>Assessments for {{ user.username }}</h1>
+        
+        {% if assessments %}
+            <table id="assessments-table" style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr>
+                        <th>Assessment ID (Session)</th>
+                        <th>Date Completed</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for assessment in assessments %}
+                        <tr>
+                            <td>{{ assessment.session_id }}</td>
+                            {# FINAL FIX: Add a check to ensure timestamp is not None before splitting #}
+                            <td>{{ assessment.timestamp.split(' ')[0] if assessment.timestamp else 'N/A' }}</td>
+                            <td><a href="{{ url_for('results', session_id=assessment.session_id) }}" class="btn btn-primary">View Detailed Results</a></td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>This user has not completed any assessments.</p>
+        {% endif %}
+
+    </div>
+</body>
+</html>

@@ -1,0 +1,55 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <div class="login-container">
+            <a href="{{ url_for('logout') }}" class="btn btn-secondary">Logout</a>
+        </div>
+        <h1>Your Dashboard</h1>
+        <p>Welcome, {{ session['username'] }}!</p>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <a href="{{ url_for('index') }}" class="btn btn-primary" style="margin-bottom: 2rem;">Start New Assessment</a>
+
+        <hr>
+
+        <h2>Your Submission History</h2>
+        {% if assessments %}
+            <table id="assessments-table" style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr>
+                        <th>Assessment ID</th>
+                        <th>Date Submitted</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for assessment in assessments %}
+                        <tr>
+                            <td>{{ assessment.session_id }}</td>
+                            {# FINAL FIX: Add a check to ensure timestamp is not None before splitting #}
+                            <td>{{ assessment.timestamp.split(' ')[0] if assessment.timestamp else 'N/A' }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>You have not completed any assessments yet.</p>
+        {% endif %}
+
+    </div>
+</body>
+</html>

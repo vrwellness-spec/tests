@@ -1,0 +1,33 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Psychological Assessment</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="progress-container">
+        <div id="progress-bar"></div>
+    </div>
+
+    <div class="container">
+        <div class="login-container">
+            <a href="{{ url_for('logout') }}" class="login-btn">Logout</a>
+        </div>
+
+        <h1>CMI Assessment</h1>
+        
+        <form id="assessment-form">
+            <div id="questions-container"></div>
+            <div class="pagination-controls">
+                <button type="button" id="prev-btn" disabled>Previous</button>
+                <button type="button" id="next-btn">Next</button>
+            </div>
+            <button type="submit" id="submit-btn" style="display: none;">Submit Assessment</button>
+        </form>
+    </div>
+    <script src="{{ url_for('static', filename='js/assessment.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,171 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Admin Dashboard</h1>
+        <p>Welcome, {{ session['username'] }}! | <a href="/logout">Logout</a></p>
+        
+        <!-- Tab Navigation -->
+        <div class="tab-nav">
+            <button class="tab-link active" onclick="openTab(event, 'results')">Users & Results</button>
+            <button class="tab-link" onclick="openTab(event, 'approvals')">Pending Approvals</button>
+        </div>
+
+        <!-- Users & Results Tab -->
+        <div id="results" class="tab-content" style="display: block;">
+            <h2>All Registered Users</h2>
+            <button id="refresh-all-users-btn" class="btn btn-primary">Refresh List</button>
+            <table id="all-users-table">
+                <thead>
+                    <tr>
+                        <th>Username</th>
+                        <th>Role</th>
+                        <th>Status</th>
+                        <th>Latest Assessment</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- All users will be loaded here -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pending Approvals Tab -->
+        <div id="approvals" class="tab-content">
+            <h2>Pending Consultant Approvals</h2>
+            <button id="refresh-pending-btn" class="btn btn-primary">Refresh List</button>
+            <table id="pending-users-table">
+                <thead>
+                    <tr>
+                        <th>Username</th>
+                        <th>Role</th>
+                        <th>Registered On</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Unapproved users will be loaded here -->
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+    <script>
+        function openTab(evt, tabName) {
+            let i, tabcontent, tablinks;
+            tabcontent = document.getElementsByClassName("tab-content");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].style.display = "none";
+            }
+            tablinks = document.getElementsByClassName("tab-link");
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].className = tablinks[i].className.replace(" active", "");
+            }
+            document.getElementById(tabName).style.display = "block";
+            evt.currentTarget.className += " active";
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const pendingUsersTableBody = document.querySelector('#pending-users-table tbody');
+            const allUsersTableBody = document.querySelector('#all-users-table tbody');
+            const refreshPendingBtn = document.getElementById('refresh-pending-btn');
+            const refreshAllUsersBtn = document.getElementById('refresh-all-users-btn');
+
+            async function fetchUnapprovedUsers() {
+                try {
+                    const response = await fetch("/api/admin/users");
+                    const users = await response.json();
+                    pendingUsersTableBody.innerHTML = '';
+                    if (users.length === 0) {
+                        pendingUsersTableBody.innerHTML = '<tr><td colspan="4">No pending approvals.</td></tr>';
+                        return;
+                    }
+                    users.forEach(user => {
+                        const row = document.createElement('tr');
+                        // FINAL FIX: Add a check to ensure created_at is not null
+                        const registeredDate = user.created_at ? new Date(user.created_at).toLocaleDateString() : 'N/A';
+                        row.innerHTML = `
+                            <td>${user.username}</td>
+                            <td>${user.role}</td>
+                            <td>${registeredDate}</td>
+                            <td><button class="btn btn-success approve-btn" data-user-id="${user.id}">Approve</button></td>
+                        `;
+                        pendingUsersTableBody.appendChild(row);
+                    });
+                } catch (error) {
+                    pendingUsersTableBody.innerHTML = '<tr><td colspan="4">Error loading users.</td></tr>';
+                }
+            }
+
+            async function fetchAllUsers() {
+                try {
+                    const response = await fetch("/api/admin/all_users");
+                    const users = await response.json();
+                    allUsersTableBody.innerHTML = '';
+                    if (users.length === 0) {
+                        allUsersTableBody.innerHTML = '<tr><td colspan="5">No registered users found.</td></tr>';
+                        return;
+                    }
+                    users.forEach(user => {
+                        const row = document.createElement('tr');
+                        const status = user.approved ? 'Approved' : 'Pending';
+                        const latestResultLink = user.latest_session_id 
+                            ? `<a href="/results/${user.latest_session_id}" class="btn btn-primary btn-sm">View Latest</a>`
+                            : `<button class="btn btn-secondary btn-sm" disabled>No Results</button>`;
+
+                        row.innerHTML = `
+                            <td>${user.username}</td>
+                            <td>${user.role}</td>
+                            <td>${status}</td>
+                            <td>${user.latest_assessment_date || 'N/A'}</td>
+                            <td>
+                                ${latestResultLink}
+                                <a href="/admin/user/${user.id}" class="btn btn-secondary btn-sm">View History</a>
+                            </td>
+                        `;
+                        allUsersTableBody.appendChild(row);
+                    });
+                } catch (error) {
+                    allUsersTableBody.innerHTML = '<tr><td colspan="4">Error loading users.</td></tr>';
+                }
+            }
+
+            async function approveUser(userId) {
+                try {
+                    const response = await fetch(`/api/admin/approve/${userId}`, { method: 'POST' });
+                    const result = await response.json();
+                    alert(result.message || result.error);
+                    fetchUnapprovedUsers();
+                    fetchAllUsers();
+                } catch (error) {
+                    alert('An error occurred during approval.');
+                }
+            }
+
+            pendingUsersTableBody.addEventListener('click', (e) => {
+                if (e.target.classList.contains('approve-btn')) {
+                    const userId = e.target.dataset.userId;
+                    if (confirm(`Are you sure you want to approve user ${userId}?`)) {
+                        approveUser(userId);
+                    }
+                }
+            });
+
+            refreshPendingBtn.addEventListener('click', fetchUnapprovedUsers);
+            refreshAllUsersBtn.addEventListener('click', fetchAllUsers);
+
+            // Initial data load
+            fetchUnapprovedUsers();
+            fetchAllUsers();
+        });
+    </script>
+</body>
+</html>

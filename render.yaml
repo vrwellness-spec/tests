@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: assessment-app
+    env: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn --bind 0.0.0.0:$PORT wsgi:application
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: ADMIN_USERNAME
+        generateValue: true
+      - key: ADMIN_PASSWORD
+        generateValue: true
+      - key: SECRET_KEY
+        generateValue: true
+      - key: FLASK_DEBUG
+        value: False
+      - key: DATABASE_PATH
+        value: /opt/render/project/src/assessments.db
+    disk:
+      name: assessment-data
+      mountPath: /opt/render/project/src
+      sizeGB: 1

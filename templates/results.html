@@ -1,0 +1,60 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CMI Assessment Results</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container results-container">
+        <h1>CMI Assessment Results</h1>
+        
+        <!-- Validity Report Section -->
+        <div id="validity-report" class="scale-category">
+            <h2>Validity Assessment</h2>
+            <div id="validity-details"></div>
+        </div>
+
+        <!-- Detailed Score Breakdown Table -->
+        <div class="scale-category">
+            <h2>Detailed Score Breakdown</h2>
+            <table id="detailed-report-table">
+                <thead>
+                    <tr>
+                        <th>Scale</th>
+                        <th>Raw Score</th>
+                        <th>BR Score</th>
+                        <th>Disclosure Adj.</th>
+                        <th>A/D Adj.</th>
+                        <th>Denial/Complaint Adj.</th>
+                        <th>Final Score</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Data will be populated by JavaScript -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Graphical Chart -->
+        <div id="results-breakdown"></div>
+
+        <!-- Print Options -->
+        <div class="print-section" style="margin-top: 30px; text-align: center;">
+            <h3>Generate Reports</h3>
+            <div class="print-buttons" style="margin-top: 15px;">
+                <button id="print-pdf-btn" class="btn btn-primary" style="margin-right: 15px; padding: 10px 20px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                    📊 Download Graph (PDF)
+                </button>
+                <button id="print-word-btn" class="btn btn-secondary" style="padding: 10px 20px; background-color: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                    📄 Download Report (Word)
+                </button>
+            </div>
+        </div>
+
+    </div>
+    <script src="{{ url_for('static', filename='js/results.js') }}"></script>
+</body>
+</html>

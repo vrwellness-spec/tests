@@ -1,0 +1,49 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CMI Assessment</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <div class="login-container">
+            {% if 'user_id' in session %}
+                {# Correctly route to admin, consultant, or client dashboard #}
+                {% if session['role'] == 'admin' %}
+                    <a href="{{ url_for('admin') }}" class="btn btn-secondary">Admin Dashboard</a>
+                {% elif session['role'] == 'consultant' %}
+                    <a href="{{ url_for('consultant_dashboard') }}" class="btn btn-secondary">Consultant Dashboard</a>
+                {% else %}
+                    <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">Client Dashboard</a>
+                {% endif %}
+                <a href="{{ url_for('logout') }}" class="btn btn-secondary">Logout</a>
+            {% else %}
+                <a href="{{ url_for('login') }}" class="btn btn-primary">Login</a>
+            {% endif %}
+        </div>
+
+        <h1>CMI Assessment</h1>
+        
+        <form id="assessment-form" data-is-logged-in="{{ 'true' if 'user_id' in session else 'false' }}">
+            <div id="questions-container"></div>
+            <div class="pagination-controls">
+                <button type="button" id="prev-btn" disabled>Previous</button>
+                <button type="button" id="next-btn">Next</button>
+            </div>
+            <button type="submit" id="submit-btn" style="display: none;">Submit Assessment</button>
+        </form>
+    </div>
+
+    <div class="progress-container-bottom">
+        <div id="progress-bar">
+            <div id="progress-bar-inner"></div>
+        </div>
+        <div id="progress-text">0% Complete</div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/assessment.js') }}"></script>
+</body>
+</html>
